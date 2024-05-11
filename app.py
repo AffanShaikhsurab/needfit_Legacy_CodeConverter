@@ -7,7 +7,15 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_google_genai import ChatGoogleGenerativeAI
 app = FastAPI()
+from fastapi.middleware.cors import CORSMiddleware
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow requests from any origin (replace with your frontend URL in production)
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
 llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro-latest", google_api_key="AIzaSyBUspiUwI4SB_gHkU2Jd_dbb6CD3EHgxug", temperature=0.0)
 
 class Code(BaseModel):
