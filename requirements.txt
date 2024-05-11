@@ -1,3 +1,4 @@
 fastapi
 langchain
 python-multipart
+langchain_google_genai
