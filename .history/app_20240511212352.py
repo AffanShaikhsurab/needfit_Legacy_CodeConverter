@@ -93,6 +93,8 @@ async def generate_code(code:str):
 
 @app.post("/generate_documentation")
 async def generate_code(code : str):
+
+
     documentation = get_documentation_from_llm(code)
     generated_code_bytes = documentation.encode('utf-8')
     

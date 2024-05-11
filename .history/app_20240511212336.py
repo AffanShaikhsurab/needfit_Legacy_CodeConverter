@@ -84,7 +84,7 @@ async def generate_code(code:str):
     print(code)
     
 
-    generated_code = get_code_from_llm(code)
+    generated_code = get_code_from_llm(code_string)
     # Convert the generated code string back to bytes
     generated_code_bytes = generated_code.encode('utf-8')
     
@@ -92,8 +92,11 @@ async def generate_code(code:str):
     return StreamingResponse(iter([generated_code_bytes]), media_type='application/octet-stream')
 
 @app.post("/generate_documentation")
-async def generate_code(code : str):
-    documentation = get_documentation_from_llm(code)
+async def generate_code(file: UploadFile = File(...)):
+    code = await file.read()
+    code_string = code.decode('utf-8')
+
+    documentation = get_documentation_from_llm(code_string)
     generated_code_bytes = documentation.encode('utf-8')
     
     # Create a StreamingResponse to stream the bytes as the response
