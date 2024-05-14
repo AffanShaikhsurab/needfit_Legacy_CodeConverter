@@ -38,7 +38,7 @@ def get_code_from_llm(code):
 
     prompt_and_model = prompt | llm
 
-    output_json = prompt_and_model.invoke({"query": "You are an SWE engineer specialized in converting legacy (Cobol) code to new code (Python). Convert the complete Cobol code to complete Python ready to delpoy. Make sure the code is converted exactly without any errors. " + code})
+    output_json = prompt_and_model.invoke({"query": "You are an SWE engineer specialized in converting legacy (Cobol) code to new code (Python). Convert the complete Cobol code to complete Python ready to delpoy. Make sure the code is converted exactly without any errors. also add an single assert testCase for the code " + code})
 
     try:
         output = json.loads(output_json.content.strip("```json").strip("```"))
