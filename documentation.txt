@@ -1,0 +1,50 @@
+# AddTwoNumbers COBOL Program Documentation
+
+## Overview
+This documentation provides a comprehensive overview of the `AddTwoNumbers` COBOL program. This program takes two numbers as input from the user, calculates their sum, and displays the result.
+
+## Objective
+The objective of this program is to demonstrate a simple arithmetic operation (addition) in COBOL by taking two numbers as input, adding them together, and presenting the sum to the user.
+
+## Input and Output
+
+**Input:**
+* Two numeric values (`Num1` and `Num2`), each with a maximum of 5 digits.
+
+**Output:**
+* The sum of the two input numbers (`Sum`), displayed as a 6-digit number.
+
+## Architecture
+The program follows a straightforward procedural architecture, typical of COBOL programs. It consists of:
+
+* **IDENTIFICATION DIVISION:** Identifies the program name (`AddTwoNumbers`).
+* **DATA DIVISION:** Defines the data structures used in the program, including `Num1`, `Num2`, and `Sum`.
+* **PROCEDURE DIVISION:** Contains the executable instructions of the program, including input, calculation, and output.
+
+## Workflow
+1. **Input:** The program prompts the user to enter the first number and stores it in `Num1`. It then prompts for the second number and stores it in `Num2`.
+2. **Calculation:** The `COMPUTE` statement adds the values of `Num1` and `Num2` and stores the result in `Sum`.
+3. **Output:** The program displays a message showing the original input numbers and their calculated sum.
+4. **Termination:** The program ends execution with the `STOP RUN` statement.
+
+## Supported Languages and Frameworks
+* This program is written in COBOL and requires a COBOL compiler and runtime environment for execution.
+
+## Usage Instructions
+1. **Compilation:** Compile the COBOL code using a COBOL compiler.
+2. **Execution:** Run the compiled program in a COBOL runtime environment.
+3. **Input:** When prompted, enter the two numbers you want to add.
+4. **Output:** The program will display the sum of the two numbers.
+
+## Examples and Case Studies
+
+**Example:**
+
+* Input: `Num1 = 12345`, `Num2 = 67890`
+* Output: `The sum of 12345 and 67890 is 80235`
+
+## Limitations and Considerations
+
+* **Input Validation:** The program does not include input validation. Entering non-numeric values may lead to errors.
+* **Number Size:** The program is limited to handling numbers up to 5 digits each. Larger numbers will be truncated.
+* **Overflow:** The `Sum` variable is defined as `PIC 9(6)`. If the sum of the two numbers exceeds 999999, an overflow will occur.

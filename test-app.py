@@ -4,9 +4,13 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import StreamingResponse
 from langchain.output_parsers import PydanticOutputParser
 from langchain_core.prompts import PromptTemplate
+from pydantic import BaseModel
+
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_google_genai import ChatGoogleGenerativeAI
+
 app = FastAPI()
+
 from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
@@ -16,7 +20,13 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
+
+
+class InputCode(BaseModel):
+    code : str
+
 llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro-latest", google_api_key="AIzaSyBUspiUwI4SB_gHkU2Jd_dbb6CD3EHgxug", temperature=0.0)
+
 
 class Code(BaseModel):
     code: str = Field(description="The complete python code")
@@ -28,55 +38,34 @@ class Documentation(BaseModel):
 
 def get_code_from_llm(code):
     parser = PydanticOutputParser(pydantic_object=Code)
-
-    prompt = PromptTemplate(
-        template="\n{format_instructions}\n{query}\n",
-        input_variables=["query"],
-                partial_variables={"format_instructions": parser.get_format_instructions()},
-
-    )
-
-    prompt_and_model = prompt | llm
-
-    output_json = prompt_and_model.invoke({"query": "You are an SWE engineer specialized in converting legacy (Cobol) code to new code (Python). Convert the complete Cobol code to complete Python ready to delpoy. Make sure the code is converted exactly without any errors. " + code})
-
-    try:
-        output = json.loads(output_json.content.strip("```json").strip("```"))
-    except:
-        output = json.loads(output_json.content)
-
-    saveFile("test_code.py", output["code"])
-
-    return output["terminal_code"]
-
-def get_documentation_from_llm(code):
-    parser = PydanticOutputParser(pydantic_object=Documentation)
-
     prompt = PromptTemplate(
         template="\n{format_instructions}\n{query}\n",
         input_variables=["query"],
         partial_variables={"format_instructions": parser.get_format_instructions()},
     )
-
     prompt_and_model = prompt | llm
-
-    output_json = prompt_and_model.invoke({"query": """ You are an SWE engineer specialized in converting legacy (Cobol) code. Make sure to create documentation of the given code in the following format: Title and Overview
-Objective
-Input and Output
-Architecture
-Workflow
-Supported Languages and Frameworks
-Usage Instructions
-Examples and Case Studies
-Limitations and Considerations. The Python code is: """ + code})
-
+    output_json = prompt_and_model.invoke({"query": "You are an SWE engineer specialized in converting legacy (Cobol) code to new code (Python). Convert the Cobol code to Python. Make sure the code is converted exactly without any errors. " + code})
     try:
         output = json.loads(output_json.content.strip("```json").strip("```"))
     except:
         output = json.loads(output_json.content)
+    saveFile("test_code.py", output["code"])
+    return output["terminal_code"]
 
+def get_documentation_from_llm(code):
+    parser = PydanticOutputParser(pydantic_object=Documentation)
+    prompt = PromptTemplate(
+        template="\n{format_instructions}\n{query}\n",
+        input_variables=["query"],
+        partial_variables={"format_instructions": parser.get_format_instructions()},
+    )
+    prompt_and_model = prompt | llm
+    output_json = prompt_and_model.invoke({"query": """ You are an SWE engineer specialized in converting legacy (Cobol) code. Make sure to create documentation of the given code in the following format: Title and OverviewObjectiveInput and OutputArchitectureWorkflowSupported Languages and FrameworksUsage InstructionsExamples and Case StudiesLimitations and Considerations. The Python code is: """ + code})
+    try:
+        output = json.loads(output_json.content.strip("```json").strip("```"))
+    except:
+        output = json.loads(output_json.content)
     saveFile("documentation.txt", output["documentation"])
-
     return output["documentation"]
 
 def saveFile(file_path , code):
@@ -87,11 +76,11 @@ def saveFile(file_path , code):
     except IOError:
         print("Error saving the file.")
 
-
 @app.post("/generate_code")
 async def generate_code(file: UploadFile = File(...)):
     code = await file.read()
     code_str = code.decode("utf-8")  # Decode the bytes to a string
+
     generated_code = get_code_from_llm(code_str)
     return StreamingResponse(iter([generated_code.encode()]), media_type='application/octet-stream')
 
@@ -102,6 +91,7 @@ async def generate_code(file: UploadFile = File(...)):
 
     generated_documentation = get_documentation_from_llm(documentation_str)
     return StreamingResponse(iter([generated_documentation.encode()]), media_type='application/octet-stream')
+
 
 if __name__ == "__main__":
     import uvicorn
